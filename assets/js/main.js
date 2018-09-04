@@ -186,5 +186,61 @@
 
 				}
 			});
+		
+	// Form
+		$('#form-button').on('click', function(event) {
+			let user = $('#name').val();
+			let email = $('#email').val();
+			let message = $('#message').val();
+
+			if (user == '' || email == '' || message == '') {
+				return
+			}
+
+			if (!validateEmail(email)) {
+				displayBanner('Por favor usa un email válido');
+				return
+			}
+
+			let payload = {
+				user: user,
+				email: email,
+				message: message,
+			};
+
+			let successfunc = function(data) {
+				displayBanner('Su mensaje se envió con éxito', true);
+			}
+
+			let errorfunc = function (responseData, textStatus, errorThrown) {
+				displayBanner('Hubo un error, por favor intentelo de nuevo');
+			}
+
+			$.ajax({
+				type: 'POST',
+				url: 'https://80qs0zdogl.execute-api.us-east-1.amazonaws.com/default/coheteria-form',
+				data: JSON.stringify(payload),
+				dataType: 'json',
+				headers: {
+					"Access-Control-Allow-Origin": "*"
+			   	},
+				success: successfunc,
+				error: errorfunc
+			});
+		})
 
 })(jQuery);
+
+let displayBanner = function(message, isNotError) {
+	$('.banner-text').text(message)
+	$('.banner').css('display', 'inline-block')
+
+	if (isNotError) {
+		$('.banner').css('background-color', 'rgb(19, 84, 19, 0.7)')
+	}
+}
+
+function validateEmail(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+}
